@@ -28,6 +28,7 @@ namespace RealShooter.EditorTools
             int groundLayer = GetOrCreateLayer("Ground");
             int targetLayer = GetOrCreateLayer("Targets");
             int interactableLayer = GetOrCreateLayer("Interactable");
+            int turretLayer = GetOrCreateLayer("ScopeTurrets");
 
             CreateLight();
             CreateGround(groundLayer);
@@ -41,7 +42,7 @@ namespace RealShooter.EditorTools
             BulletData bullet = CreateOrLoadBullet();
             WeaponData weapon = CreateOrLoadWeapon();
             AssignPlayerCamera(controller, cameraTransform);
-            CreateGun(physicsManager, bullet, weapon, interactableLayer);
+            CreateGun(physicsManager, bullet, weapon, interactableLayer, turretLayer);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             AssetDatabase.SaveAssets();
@@ -117,7 +118,7 @@ namespace RealShooter.EditorTools
             return controller;
         }
 
-        private static void CreateGun(PhysicsManager physicsManager, BulletData bullet, WeaponData weapon, int interactableLayer)
+        private static void CreateGun(PhysicsManager physicsManager, BulletData bullet, WeaponData weapon, int interactableLayer, int turretLayer)
         {
             // Contenedor sin escalar: si el mesh visual (thin/largo) fuera el mismo objeto,
             // su escala no-uniforme distorsionaria el offset local de OperatorViewpoint.
@@ -145,6 +146,12 @@ namespace RealShooter.EditorTools
             viewpointGo.transform.localPosition = new Vector3(0f, 0.2f, -0.7f); // aprox. detras/arriba del arma; ajustar cuando haya arte real
             viewpointGo.transform.localRotation = Quaternion.identity;
 
+            // Posicionadas para que, mirando desde OperatorViewpoint hacia +Z, quede un pequeño
+            // giro de mira (arriba para elevacion, arriba-derecha para windage) para encontrarlas
+            // sin salir del todo del apuntado normal. Ajustar cuando haya arte real de la mira.
+            TurretController elevationTurret = CreateTurret(gunGo.transform, "ElevationTurret", TurretAxis.Elevation, new Vector3(0f, 0.35f, -0.3f), turretLayer);
+            TurretController windageTurret = CreateTurret(gunGo.transform, "WindageTurret", TurretAxis.Windage, new Vector3(0.15f, 0.2f, -0.3f), turretLayer);
+
             GunController gunController = gunGo.AddComponent<GunController>();
 
             SerializedObject so = new SerializedObject(gunController);
@@ -152,7 +159,44 @@ namespace RealShooter.EditorTools
             so.FindProperty("weaponData").objectReferenceValue = weapon;
             so.FindProperty("physicsManager").objectReferenceValue = physicsManager;
             so.FindProperty("operatorViewpoint").objectReferenceValue = viewpointGo.transform;
+            so.FindProperty("elevationTurret").objectReferenceValue = elevationTurret;
+            so.FindProperty("windageTurret").objectReferenceValue = windageTurret;
+            so.FindProperty("turretLayerMask").intValue = 1 << turretLayer;
             so.ApplyModifiedProperties();
+        }
+
+        private static TurretController CreateTurret(Transform parent, string name, TurretAxis axis, Vector3 localPosition, int turretLayer)
+        {
+            GameObject turretGo = new GameObject(name);
+            turretGo.transform.SetParent(parent, false);
+            turretGo.transform.localPosition = localPosition;
+            turretGo.layer = turretLayer;
+
+            SphereCollider collider = turretGo.AddComponent<SphereCollider>();
+            collider.radius = 0.08f;
+
+            GameObject visualGo = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            visualGo.name = "Visual";
+            visualGo.transform.SetParent(turretGo.transform, false);
+            visualGo.transform.localScale = new Vector3(0.08f, 0.03f, 0.08f);
+            visualGo.transform.localRotation = Quaternion.Euler(90f, 0f, 0f); // acostado, como una perilla sobresaliendo
+
+            Collider visualCollider = visualGo.GetComponent<Collider>();
+            if (visualCollider != null) Object.DestroyImmediate(visualCollider); // el collider real vive en turretGo
+
+            Renderer renderer = visualGo.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                Color color = axis == TurretAxis.Elevation ? new Color(0.8f, 0.1f, 0.1f) : new Color(0.1f, 0.3f, 0.8f);
+                renderer.sharedMaterial = CreateColoredMaterial(color);
+            }
+
+            TurretController turret = turretGo.AddComponent<TurretController>();
+            SerializedObject so = new SerializedObject(turret);
+            so.FindProperty("axis").enumValueIndex = (int)axis;
+            so.ApplyModifiedProperties();
+
+            return turret;
         }
 
         private static PhysicsManager CreateManagers(int groundLayer, int targetLayer, out WeatherManager weatherManager)

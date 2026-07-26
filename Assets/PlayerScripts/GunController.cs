@@ -47,8 +47,21 @@ namespace RealShooter.Player
         [SerializeField] private float bulletCamTrailDistance = 2f;
         [SerializeField] private float bulletCamSmoothing = 12f;
 
+        [Header("Torretas de mira (windage / elevation)")]
+        [SerializeField] private GameObject visual;
+        [SerializeField] private TurretController elevationTurret;
+        [SerializeField] private TurretController windageTurret;
+
+        [Tooltip("Distancia maxima del raycast que detecta si se esta mirando una torreta.")]
+        [SerializeField] private float turretLookDistance = 2f;
+
+        [SerializeField] private LayerMask turretLayerMask = ~0;
+
         [SerializeField] private BallisticsHudController hudController;
         public float InteractionRange => interactionRange;
+
+        // 1 mil = 1/1000 rad, exacto por definicion.
+        private static readonly float MilToDegrees = 0.001f * Mathf.Rad2Deg;
 
         private PlayerShooterController controllingPlayer;
         private Transform cameraTransform;
@@ -140,7 +153,14 @@ namespace RealShooter.Player
 
             HandleAim();
             HandleScopeToggle();
-            HandleScopeZoom();
+
+            // Si se esta mirando una torreta, el scroll la ajusta a ella en vez de hacer zoom.
+            bool scrollHandledByTurret = HandleTurretAdjustment();
+            if (!scrollHandledByTurret)
+            {
+                HandleScopeZoom();
+            }
+
             HandleFire();
         }
 
@@ -182,7 +202,7 @@ namespace RealShooter.Player
             isScoped = !isScoped;
             
             hudController.ToggleScope();
-                
+            visual.SetActive(!isScoped);
             
             ApplyFieldOfView();
         }
@@ -205,6 +225,44 @@ namespace RealShooter.Player
             if (playerCamera == null) return;
             // El FOV se relaciona con el zoom de forma inversa: FOV_normal / factor de zoom.
             playerCamera.fieldOfView = isScoped ? normalFieldOfView / currentZoomFactor : normalFieldOfView;
+        }
+
+        /// Detecta si la mira esta apuntando a una torreta y, de ser asi, le aplica un click
+        /// discreto por muesca de scroll (no analogico). Devuelve true si el scroll de este
+        /// frame fue consumido por una torreta, para que HandleScopeZoom no lo use tambien.
+        private bool HandleTurretAdjustment()
+        {
+            if (Mouse.current == null) return false;
+
+            if (!Physics.Raycast(cameraTransform.position, cameraTransform.forward, out RaycastHit hit, turretLookDistance, turretLayerMask))
+            {
+                return false;
+            }
+
+            if (!hit.collider.TryGetComponent(out TurretController turret)) return false;
+
+            float scroll = Mouse.current.scroll.ReadValue().y;
+            if (Mathf.Approximately(scroll, 0f)) return false;
+
+            turret.ApplyClick(scroll > 0f ? 1 : -1);
+            return true;
+        }
+
+        /// Direccion de disparo corregida por el zero shift de las torretas: elevacion inclina
+        /// el impacto de punto de mira hacia arriba, windage hacia la derecha, ambos relativos
+        /// al eje de apuntado actual (no a los ejes del mundo).
+        private Vector3 GetCorrectedAimDirection()
+        {
+            float elevationDeg = elevationTurret != null ? -elevationTurret.CurrentMil * MilToDegrees : 0f;
+            float windageDeg = windageTurret != null ? windageTurret.CurrentMil * MilToDegrees : 0f;
+
+            if (Mathf.Approximately(elevationDeg, 0f) && Mathf.Approximately(windageDeg, 0f))
+            {
+                return cameraTransform.forward;
+            }
+
+            Quaternion correction = Quaternion.Euler(elevationDeg, windageDeg, 0f);
+            return cameraTransform.rotation * correction * Vector3.forward;
         }
 
         private void HandleBulletCamToggle()
@@ -258,7 +316,7 @@ namespace RealShooter.Player
             }
 
             Vector3 origin = muzzlePoint != null ? muzzlePoint.position : cameraTransform.position;
-            Vector3 direction = cameraTransform.forward;
+            Vector3 direction = GetCorrectedAimDirection();
 
             Projectile projectile = physicsManager.Fire(bulletData, weaponData, origin, direction);
 

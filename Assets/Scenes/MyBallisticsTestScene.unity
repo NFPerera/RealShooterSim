@@ -233,6 +233,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 180140951}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &223953034 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2354543756365378455, guid: 8270557003c034848b7767cf72519ff6, type: 3}
+  m_PrefabInstance: {fileID: 761274285}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &290278775
 GameObject:
   m_ObjectHideFlags: 0
@@ -681,6 +686,28 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &520919282 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6897359052543064811, guid: 8270557003c034848b7767cf72519ff6, type: 3}
+  m_PrefabInstance: {fileID: 761274285}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 864d4c42443fd1a43b4d83d1ff94b2fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RealShooter.Player.TurretController
+--- !u!114 &653741691 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8564385044375475313, guid: 8270557003c034848b7767cf72519ff6, type: 3}
+  m_PrefabInstance: {fileID: 761274285}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 864d4c42443fd1a43b4d83d1ff94b2fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RealShooter.Player.TurretController
 --- !u!21 &694296679
 Material:
   serializedVersion: 8
@@ -812,13 +839,29 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2002677602719879309, guid: 8270557003c034848b7767cf72519ff6, type: 3}
+      propertyPath: visual
+      value: 
+      objectReference: {fileID: 223953034}
+    - target: {fileID: 2002677602719879309, guid: 8270557003c034848b7767cf72519ff6, type: 3}
       propertyPath: hudController
       value: 
       objectReference: {fileID: 422472663}
     - target: {fileID: 2002677602719879309, guid: 8270557003c034848b7767cf72519ff6, type: 3}
+      propertyPath: windageTurret
+      value: 
+      objectReference: {fileID: 653741691}
+    - target: {fileID: 2002677602719879309, guid: 8270557003c034848b7767cf72519ff6, type: 3}
       propertyPath: physicsManager
       value: 
       objectReference: {fileID: 1461359706}
+    - target: {fileID: 2002677602719879309, guid: 8270557003c034848b7767cf72519ff6, type: 3}
+      propertyPath: elevationTurret
+      value: 
+      objectReference: {fileID: 520919282}
+    - target: {fileID: 2354543756365378455, guid: 8270557003c034848b7767cf72519ff6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4273495937306249117, guid: 8270557003c034848b7767cf72519ff6, type: 3}
       propertyPath: m_Name
       value: Gun (Sniper Rifle - Montado) (1)
@@ -1008,6 +1051,10 @@ PrefabInstance:
       propertyPath: scopeZoomScrollSensitivity
       value: 0.8
       objectReference: {fileID: 0}
+    - target: {fileID: 2498678196075361078, guid: 8270557003c034848b7767cf72519ff6, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 9477daebf074e344eac9a1f04d3a5f02, type: 2}
     - target: {fileID: 4273495937306249117, guid: 8270557003c034848b7767cf72519ff6, type: 3}
       propertyPath: m_Name
       value: Gun (Sniper Rifle - Montado)
