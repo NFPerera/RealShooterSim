@@ -15,6 +15,7 @@ namespace RealShooter.UI
         [Tooltip("Se busca automaticamente en la escena si se deja vacio.")]
         [SerializeField] private PhysicsManager physicsManager;
 
+        [SerializeField] private GameObject scopeGameObject;
         private Projectile trackedProjectile;
 
         private void Awake()
@@ -71,5 +72,8 @@ namespace RealShooter.UI
                 $"Distancia: {distance:F1} m\n" +
                 $"Tiempo de vuelo: {timeOfFlight:F2} s";
         }
+        
+        
+        public void ToggleScope() => scopeGameObject.SetActive(!scopeGameObject.activeSelf);
     }
 }

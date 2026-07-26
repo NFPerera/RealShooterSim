@@ -27,25 +27,27 @@ namespace RealShooter.EditorTools
 
             int groundLayer = GetOrCreateLayer("Ground");
             int targetLayer = GetOrCreateLayer("Targets");
+            int interactableLayer = GetOrCreateLayer("Interactable");
 
             CreateLight();
             CreateGround(groundLayer);
             CreateTargets(targetLayer);
 
-            PlayerShooterController controller = CreatePlayer(out Transform cameraTransform);
-            PhysicsManager physicsManager = CreateManagers(groundLayer, targetLayer, controller, out WeatherManager weatherManager);
+            PlayerShooterController controller = CreatePlayer(out Transform cameraTransform, interactableLayer);
+            PhysicsManager physicsManager = CreateManagers(groundLayer, targetLayer, out WeatherManager weatherManager);
             CreateHud(physicsManager, weatherManager, controller.transform);
 
             EnsureDataFolder();
             BulletData bullet = CreateOrLoadBullet();
             WeaponData weapon = CreateOrLoadWeapon();
-            AssignPlayerData(controller, bullet, weapon, cameraTransform);
+            AssignPlayerCamera(controller, cameraTransform);
+            CreateGun(physicsManager, bullet, weapon, interactableLayer);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             AssetDatabase.SaveAssets();
 
             Selection.activeGameObject = controller.gameObject;
-            Debug.Log("[TestSceneSetup] Escena creada en " + ScenePath + ". Dale Play: click izquierdo dispara, Escape libera el cursor.");
+            Debug.Log("[TestSceneSetup] Escena creada en " + ScenePath + ". Dale Play: WASD mueve, mira el rifle y presiona E para operarlo.");
         }
 
         private static void CreateLight()
@@ -87,7 +89,7 @@ namespace RealShooter.EditorTools
             }
         }
 
-        private static PlayerShooterController CreatePlayer(out Transform cameraTransform)
+        private static PlayerShooterController CreatePlayer(out Transform cameraTransform, int interactableLayer)
         {
             GameObject player = new GameObject("Player");
             player.transform.position = new Vector3(0f, 0f, -5f); // pies a nivel del piso; el CharacterController (centro en y=1, alto=2) ya queda apoyado en y=0
@@ -105,11 +107,55 @@ namespace RealShooter.EditorTools
             cam.nearClipPlane = 0.05f;
             cameraGo.AddComponent<AudioListener>();
 
+            PlayerInteractor interactor = player.AddComponent<PlayerInteractor>();
+            SerializedObject interactorSO = new SerializedObject(interactor);
+            interactorSO.FindProperty("cameraTransform").objectReferenceValue = cameraGo.transform;
+            interactorSO.FindProperty("interactableLayerMask").intValue = 1 << interactableLayer;
+            interactorSO.ApplyModifiedProperties();
+
             cameraTransform = cameraGo.transform;
             return controller;
         }
 
-        private static PhysicsManager CreateManagers(int groundLayer, int targetLayer, PlayerShooterController controller, out WeatherManager weatherManager)
+        private static void CreateGun(PhysicsManager physicsManager, BulletData bullet, WeaponData weapon, int interactableLayer)
+        {
+            // Contenedor sin escalar: si el mesh visual (thin/largo) fuera el mismo objeto,
+            // su escala no-uniforme distorsionaria el offset local de OperatorViewpoint.
+            GameObject gunGo = new GameObject("Gun (Sniper Rifle - Montado)");
+            gunGo.transform.position = new Vector3(0f, 1.1f, -3f); // entre el spawn del jugador (-5) y los blancos (+Z)
+            gunGo.transform.rotation = Quaternion.identity; // mira hacia +Z, como los blancos
+            gunGo.layer = interactableLayer;
+
+            BoxCollider collider = gunGo.AddComponent<BoxCollider>();
+            collider.size = new Vector3(0.3f, 0.3f, 1.2f);
+
+            GameObject visualGo = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            visualGo.name = "Visual";
+            visualGo.transform.SetParent(gunGo.transform, false);
+            visualGo.transform.localScale = new Vector3(0.15f, 0.15f, 1.2f);
+
+            Collider visualCollider = visualGo.GetComponent<Collider>();
+            if (visualCollider != null) Object.DestroyImmediate(visualCollider); // el collider real vive en gunGo
+
+            Renderer renderer = visualGo.GetComponent<Renderer>();
+            if (renderer != null) renderer.sharedMaterial = CreateColoredMaterial(new Color(0.15f, 0.15f, 0.15f));
+
+            GameObject viewpointGo = new GameObject("OperatorViewpoint");
+            viewpointGo.transform.SetParent(gunGo.transform, false);
+            viewpointGo.transform.localPosition = new Vector3(0f, 0.2f, -0.7f); // aprox. detras/arriba del arma; ajustar cuando haya arte real
+            viewpointGo.transform.localRotation = Quaternion.identity;
+
+            GunController gunController = gunGo.AddComponent<GunController>();
+
+            SerializedObject so = new SerializedObject(gunController);
+            so.FindProperty("bulletData").objectReferenceValue = bullet;
+            so.FindProperty("weaponData").objectReferenceValue = weapon;
+            so.FindProperty("physicsManager").objectReferenceValue = physicsManager;
+            so.FindProperty("operatorViewpoint").objectReferenceValue = viewpointGo.transform;
+            so.ApplyModifiedProperties();
+        }
+
+        private static PhysicsManager CreateManagers(int groundLayer, int targetLayer, out WeatherManager weatherManager)
         {
             GameObject weatherGo = new GameObject("WeatherManager");
             weatherManager = weatherGo.AddComponent<WeatherManager>();
@@ -130,10 +176,6 @@ namespace RealShooter.EditorTools
             SerializedObject visualsSO = new SerializedObject(visualManager);
             visualsSO.FindProperty("physicsManager").objectReferenceValue = physicsManager;
             visualsSO.ApplyModifiedProperties();
-
-            SerializedObject controllerSO = new SerializedObject(controller);
-            controllerSO.FindProperty("physicsManager").objectReferenceValue = physicsManager;
-            controllerSO.ApplyModifiedProperties();
 
             return physicsManager;
         }
@@ -260,11 +302,9 @@ namespace RealShooter.EditorTools
             return weapon;
         }
 
-        private static void AssignPlayerData(PlayerShooterController controller, BulletData bullet, WeaponData weapon, Transform cameraTransform)
+        private static void AssignPlayerCamera(PlayerShooterController controller, Transform cameraTransform)
         {
             SerializedObject so = new SerializedObject(controller);
-            so.FindProperty("bulletData").objectReferenceValue = bullet;
-            so.FindProperty("weaponData").objectReferenceValue = weapon;
             so.FindProperty("cameraTransform").objectReferenceValue = cameraTransform;
             so.ApplyModifiedProperties();
         }
