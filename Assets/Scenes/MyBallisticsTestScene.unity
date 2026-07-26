@@ -812,25 +812,13 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2002677602719879309, guid: 8270557003c034848b7767cf72519ff6, type: 3}
-      propertyPath: muzzlePoint
-      value: 
-      objectReference: {fileID: 2095119019}
-    - target: {fileID: 2002677602719879309, guid: 8270557003c034848b7767cf72519ff6, type: 3}
       propertyPath: hudController
       value: 
       objectReference: {fileID: 422472663}
     - target: {fileID: 2002677602719879309, guid: 8270557003c034848b7767cf72519ff6, type: 3}
-      propertyPath: maxZoomFactor
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 2002677602719879309, guid: 8270557003c034848b7767cf72519ff6, type: 3}
       propertyPath: physicsManager
       value: 
       objectReference: {fileID: 1461359706}
-    - target: {fileID: 2002677602719879309, guid: 8270557003c034848b7767cf72519ff6, type: 3}
-      propertyPath: scopeZoomScrollSensitivity
-      value: 0.8
-      objectReference: {fileID: 0}
     - target: {fileID: 4273495937306249117, guid: 8270557003c034848b7767cf72519ff6, type: 3}
       propertyPath: m_Name
       value: Gun (Sniper Rifle - Montado) (1)
@@ -877,17 +865,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 7932077634172334167, guid: 8270557003c034848b7767cf72519ff6, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2095119019}
+    m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8270557003c034848b7767cf72519ff6, type: 3}
---- !u!4 &761274286 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7932077634172334167, guid: 8270557003c034848b7767cf72519ff6, type: 3}
-  m_PrefabInstance: {fileID: 761274285}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &763992178
 GameObject:
   m_ObjectHideFlags: 0
@@ -1660,6 +1640,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1567480598}
   - component: {fileID: 1567480597}
+  - component: {fileID: 1567480599}
   m_Layer: 0
   m_Name: ProjectileVisualManager
   m_TagString: Untagged
@@ -1701,6 +1682,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1567480599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1567480596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ae195d5de5f44ebb44a59497d22368f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RealShooter.Ballistics.Visuals.HitVisual
+  hitVisualPrefab: {fileID: 7608189522933886318, guid: 2ebec37bfd41968438357a4552424ace, type: 3}
 --- !u!21 &1633245770
 Material:
   serializedVersion: 8
@@ -2470,37 +2464,6 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
---- !u!1 &2095119018
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2095119019}
-  m_Layer: 10
-  m_Name: MuzzlePoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2095119019
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2095119018}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.638}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 761274286}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

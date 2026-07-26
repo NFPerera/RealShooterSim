@@ -39,7 +39,7 @@ namespace RealShooter.Ballistics
         public event Action<Projectile> ProjectileDespawned;
 
         /// Se dispara especificamente cuando el proyectil impacta un collider en una layer de la whitelist.
-        public event Action<Projectile, RaycastHit> ProjectileHit;
+        public event Action<Projectile, RaycastHit> OnProjectileHit;
 
         private void Awake()
         {
@@ -145,7 +145,7 @@ namespace RealShooter.Ballistics
                 string layerName = LayerMask.LayerToName(hit.collider.gameObject.layer);
                 Debug.Log($"[PhysicsManager] {projectile.Bullet.bulletName} impacto '{hit.collider.name}' en layer '{layerName}' a {projectile.DistanceFromOrigin:F1} m del origen.");
 
-                ProjectileHit?.Invoke(projectile, hit);
+                OnProjectileHit?.Invoke(projectile, hit);
             }
         }
 
