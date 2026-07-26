@@ -34,7 +34,7 @@ namespace RealShooter.EditorTools
             CreateGround(groundLayer);
             CreateTargets(targetLayer);
 
-            PlayerShooterController controller = CreatePlayer(out Transform cameraTransform, interactableLayer);
+            PlayerShooterController controller = CreatePlayer(out Transform cameraTransform, interactableLayer, turretLayer);
             PhysicsManager physicsManager = CreateManagers(groundLayer, targetLayer, out WeatherManager weatherManager);
             CreateHud(physicsManager, weatherManager, controller.transform);
 
@@ -90,7 +90,7 @@ namespace RealShooter.EditorTools
             }
         }
 
-        private static PlayerShooterController CreatePlayer(out Transform cameraTransform, int interactableLayer)
+        private static PlayerShooterController CreatePlayer(out Transform cameraTransform, int interactableLayer, int turretLayer)
         {
             GameObject player = new GameObject("Player");
             player.transform.position = new Vector3(0f, 0f, -5f); // pies a nivel del piso; el CharacterController (centro en y=1, alto=2) ya queda apoyado en y=0
@@ -112,6 +112,7 @@ namespace RealShooter.EditorTools
             SerializedObject interactorSO = new SerializedObject(interactor);
             interactorSO.FindProperty("cameraTransform").objectReferenceValue = cameraGo.transform;
             interactorSO.FindProperty("interactableLayerMask").intValue = 1 << interactableLayer;
+            interactorSO.FindProperty("scrollInteractableLayerMask").intValue = 1 << turretLayer;
             interactorSO.ApplyModifiedProperties();
 
             cameraTransform = cameraGo.transform;

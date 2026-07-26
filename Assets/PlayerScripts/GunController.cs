@@ -227,25 +227,16 @@ namespace RealShooter.Player
             playerCamera.fieldOfView = isScoped ? normalFieldOfView / currentZoomFactor : normalFieldOfView;
         }
 
-        /// Detecta si la mira esta apuntando a una torreta y, de ser asi, le aplica un click
-        /// discreto por muesca de scroll (no analogico). Devuelve true si el scroll de este
-        /// frame fue consumido por una torreta, para que HandleScopeZoom no lo use tambien.
+        /// Detecta si la mira esta apuntando a una torreta (u otro IScrollInteractable) y le
+        /// reenvia el scroll de este frame. Devuelve true si algo lo consumio, para que
+        /// HandleScopeZoom no lo use tambien. Misma logica que PlayerInteractor usa mirando el
+        /// arma desde afuera, via ScrollInteractionUtility.
         private bool HandleTurretAdjustment()
         {
             if (Mouse.current == null) return false;
 
-            if (!Physics.Raycast(cameraTransform.position, cameraTransform.forward, out RaycastHit hit, turretLookDistance, turretLayerMask))
-            {
-                return false;
-            }
-
-            if (!hit.collider.TryGetComponent(out TurretController turret)) return false;
-
             float scroll = Mouse.current.scroll.ReadValue().y;
-            if (Mathf.Approximately(scroll, 0f)) return false;
-
-            turret.ApplyClick(scroll > 0f ? 1 : -1);
-            return true;
+            return ScrollInteractionUtility.TryHandleScroll(cameraTransform.position, cameraTransform.forward, turretLookDistance, turretLayerMask, scroll);
         }
 
         /// Direccion de disparo corregida por el zero shift de las torretas: elevacion inclina

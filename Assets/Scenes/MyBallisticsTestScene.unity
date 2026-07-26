@@ -644,6 +644,10 @@ MonoBehaviour:
   interactableLayerMask:
     serializedVersion: 2
     m_Bits: 1024
+  scrollInteractableLayerMask:
+    serializedVersion: 2
+    m_Bits: 2048
+  maxScrollInteractionDistance: 3
 --- !u!114 &512705999
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -858,9 +862,17 @@ PrefabInstance:
       propertyPath: elevationTurret
       value: 
       objectReference: {fileID: 520919282}
+    - target: {fileID: 2002677602719879309, guid: 8270557003c034848b7767cf72519ff6, type: 3}
+      propertyPath: turretLayerMask.m_Bits
+      value: 2048
+      objectReference: {fileID: 0}
     - target: {fileID: 2354543756365378455, guid: 8270557003c034848b7767cf72519ff6, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4025864163752169260, guid: 8270557003c034848b7767cf72519ff6, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 4273495937306249117, guid: 8270557003c034848b7767cf72519ff6, type: 3}
       propertyPath: m_Name
@@ -905,6 +917,10 @@ PrefabInstance:
     - target: {fileID: 7932077634172334167, guid: 8270557003c034848b7767cf72519ff6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8380875499830323453, guid: 8270557003c034848b7767cf72519ff6, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1660,7 +1676,7 @@ MonoBehaviour:
   pressureHpa: 1013.25
   relativeHumidityPercent: 50
   altitudeMeters: 0
-  windVelocityMps: {x: 0, y: 0, z: 0}
+  windVelocityMps: {x: 10, y: 0, z: 0}
   latitudeDegrees: 0
 --- !u!4 &1506591112
 Transform:
